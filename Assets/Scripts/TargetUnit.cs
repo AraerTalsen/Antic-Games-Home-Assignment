@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TargetUnit : MonoBehaviour
 {
-    private static Dictionary<Unit, (int, int)> registedUnits = new();
+    private static Dictionary<Unit, (int, int)> registeredUnits = new();
 
     private Unit self;
 
@@ -17,24 +17,26 @@ public class TargetUnit : MonoBehaviour
     
     public void AddUnit(int i, int j, Unit unit)
     {
-        registedUnits.Add(unit, (i, j));
+        registeredUnits.Add(unit, (i, j));
     }
 
     private Unit FindTarget()
     {
         Unit selectedTarget = null;
-        int highestPriority = 0;
+        int highestPriority = -1;
         
-        foreach(KeyValuePair<Unit, (int, int)> cell in registedUnits)
+        foreach(KeyValuePair<Unit, (int, int)> cell in registeredUnits)
         {
-            int unitPriority = MeasurePriorityLevel(cell.Value);
-            if(unitPriority > highestPriority)
+            if(cell.Key.UnitTag.CompareTo(self.FlaggedUnits) == 0)
             {
-                highestPriority = unitPriority;
-                selectedTarget = cell.Key;
-            } 
+                int unitPriority = MeasurePriorityLevel(cell.Value);
+                if(unitPriority > highestPriority)
+                {
+                    highestPriority = unitPriority;
+                    selectedTarget = cell.Key;
+                } 
+            }
         }
-
         return selectedTarget;
         
     }
@@ -47,14 +49,15 @@ public class TargetUnit : MonoBehaviour
 
     private int DistanceFrom((int i, int j) destination)
     {
-        (int x, int z) = registedUnits[self];
+        (int x, int z) = registeredUnits[self];
         return Mathf.Abs(destination.i - x) + Mathf.Abs(destination.j - z);
     }
 
+    //Find way to make this private to avoid null assignment errors
     public int DistanceFrom(Unit target)
     {
-        (int i, int j) = registedUnits[target];
-        (int x, int z) = registedUnits[self];
+        (int i, int j) = registeredUnits[target];
+        (int x, int z) = registeredUnits[self];
         return Mathf.Abs(i - x) + Mathf.Abs(j - z);
     }
 }

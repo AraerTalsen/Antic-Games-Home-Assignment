@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,21 +9,27 @@ public class Unit : ScriptableObject
     [SerializeField]
     private Sprite sprite;
     [SerializeField]
-    private string id; 
+    private string unitTag;
+    [SerializeField]
+    private string flaggedUnits;  
     [SerializeField]
     private int health; 
     [SerializeField]
     private int speed;
+    [SerializeField]
+    private bool isMobile = true;
 
     private Transform transform;
 
     public Transform Transform {get => transform; set => transform = value;}
+    public string UnitTag {get => unitTag;}
+    public string FlaggedUnits {get => flaggedUnits;}
 
-    public void Deconstruct(out Sprite Sprite, out string ID, out int Health, out int Speed)
+    public void Deconstruct(out Sprite Sprite, out int Health, out int Speed, out bool IsMobile)
     {
         Sprite = sprite;
-        ID = id;
         Health = health;
         Speed = speed;
+        IsMobile = isMobile;
     }
 }

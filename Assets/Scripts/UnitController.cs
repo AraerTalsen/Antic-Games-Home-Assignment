@@ -7,27 +7,32 @@ public class UnitController : Grid<Unit>
 {
     private int maxHealth, currentHealth;
     private int speed;
-    private string id;
     private Unit roleAssignment;
     private TargetUnit tu;
     private Unit target;
+    private bool isMobile;
 
     public Unit RoleAssignment {get => roleAssignment; set => roleAssignment = value;}
     public int MaxHealth {set => maxHealth = value;}
     public int Speed {set => speed = value;}
-    public string ID {set => id = value;}
+    public bool IsMobile {set => isMobile = value;}
 
     void Start()
     {
         currentHealth = maxHealth;
         roleAssignment.Transform = transform;
-        tu.GetComponent<TargetUnit>();
+        tu = GetComponent<TargetUnit>();
+
+        RegisterUnit();
     }
 
     // Update is called once per frame
     void Update()
     {
-        Move();
+        if(isMobile && target == null)
+        {
+            Move();
+        }
     }
 
     protected override void RegisterUnit()
@@ -40,10 +45,8 @@ public class UnitController : Grid<Unit>
 
     protected override void Move()
     {
-        if(target == null)
-        {
-            target = tu.Target;
-        }
-        transform.DOMove(target.Transform.position, tu.DistanceFrom(target) / speed * Time.deltaTime);
+        target = tu.Target;
+        float dist = tu.DistanceFrom(target);
+        transform.DOMove(target.Transform.position, dist / speed);
     }
 }

@@ -5,18 +5,20 @@ using UnityEngine;
 
 public static class UnitFactory
 {
-    public static void CreateUnit()
+    public static void CreateUnit(int unitID)
     {
-        InitializeUnit(Object.Instantiate(Resources.Load("Prefabs/Unit") as GameObject));
-
+        int x = Random.Range(-10, 11);
+        int z = Random.Range(-10, 11);
+        InitializeUnit(unitID, Object.Instantiate(Resources.Load("Prefabs/Unit") as GameObject, new Vector3(x, 0, z), Quaternion.identity));
     }
 
-    private static void InitializeUnit(GameObject unit)
+    private static void InitializeUnit(int unitID, GameObject unit)
     {
         SpriteRenderer sr = unit.GetComponent<SpriteRenderer>();
         UnitController uc = unit.GetComponent<UnitController>();
-        Unit unitType = Resources.Load("ScriptableObjects/Units/AntDefender") as Unit;
-        (sr.sprite, uc.ID, uc.MaxHealth, uc.Speed) = unitType;
+        Unit unitType = UnitDictionary.units[unitID];
+        (sr.sprite, uc.MaxHealth, uc.Speed, uc.IsMobile) = unitType;
+        uc.RoleAssignment = unitType;
         unit.name = unitType.name;
     }
 }
