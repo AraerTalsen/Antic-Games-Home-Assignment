@@ -4,26 +4,28 @@ using UnityEngine;
 
 public class TargetUnit : MonoBehaviour
 {
-    private static Dictionary<UnitController, (int, int)> registedUnits = new();
+    private static Dictionary<Unit, (int, int)> registedUnits = new();
 
-    private UnitController self;
+    private Unit self;
+
+    public Unit Target { get => FindTarget();}
 
     private void Start()
     {
-        self = GetComponent<UnitController>();
+        self = GetComponent<UnitController>().RoleAssignment;
     }
     
-    public void AddUnit(int i, int j, UnitController unit)
+    public void AddUnit(int i, int j, Unit unit)
     {
         registedUnits.Add(unit, (i, j));
     }
 
-    public void FindTarget()
+    private Unit FindTarget()
     {
-        UnitController selectedTarget;
+        Unit selectedTarget = null;
         int highestPriority = 0;
-
-        foreach(KeyValuePair<UnitController, (int, int)> cell in registedUnits)
+        
+        foreach(KeyValuePair<Unit, (int, int)> cell in registedUnits)
         {
             int unitPriority = MeasurePriorityLevel(cell.Value);
             if(unitPriority > highestPriority)
@@ -32,6 +34,9 @@ public class TargetUnit : MonoBehaviour
                 selectedTarget = cell.Key;
             } 
         }
+
+        return selectedTarget;
+        
     }
 
     private int MeasurePriorityLevel((int, int) position)
@@ -44,5 +49,12 @@ public class TargetUnit : MonoBehaviour
     {
         (int x, int z) = registedUnits[self];
         return Mathf.Abs(destination.i - x) + Mathf.Abs(destination.j - z);
+    }
+
+    public int DistanceFrom(Unit target)
+    {
+        (int i, int j) = registedUnits[target];
+        (int x, int z) = registedUnits[self];
+        return Mathf.Abs(i - x) + Mathf.Abs(j - z);
     }
 }

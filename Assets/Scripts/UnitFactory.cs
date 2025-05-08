@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using UnityEngine;
 
 public static class UnitFactory
@@ -15,10 +16,7 @@ public static class UnitFactory
         SpriteRenderer sr = unit.GetComponent<SpriteRenderer>();
         UnitController uc = unit.GetComponent<UnitController>();
         Unit unitType = Resources.Load("ScriptableObjects/Units/AntDefender") as Unit;
-        sr.sprite = unitType.Sprite;
-        uc.MaxHealth = unitType.Health;
-        uc.Speed = unitType.Speed;
-        uc.ID = unitType.ID;
+        (sr.sprite, uc.ID, uc.MaxHealth, uc.Speed) = unitType;
         unit.name = unitType.name;
     }
 }

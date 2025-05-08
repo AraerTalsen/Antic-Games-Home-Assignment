@@ -12,10 +12,17 @@ public class Unit : ScriptableObject
     [SerializeField]
     private int health; 
     [SerializeField]
-    private int speed; 
+    private int speed;
 
-    public Sprite Sprite {get => sprite;}
-    public string ID {get => id;}
-    public int Health {get => health;}
-    public int Speed {get => speed;}
+    private Transform transform;
+
+    public Transform Transform {get => transform; set => transform = value;}
+
+    public void Deconstruct(out Sprite Sprite, out string ID, out int Health, out int Speed)
+    {
+        Sprite = sprite;
+        ID = id;
+        Health = health;
+        Speed = speed;
+    }
 }
