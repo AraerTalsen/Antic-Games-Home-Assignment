@@ -17,19 +17,27 @@ public class Unit : ScriptableObject
     [SerializeField]
     private int speed;
     [SerializeField]
+    private int damage;
+    [SerializeField]
     private bool isMobile = true;
+    [SerializeField]
+    private bool isCombatant = true;
 
     private Transform transform;
 
     public Transform Transform {get => transform; set => transform = value;}
     public string UnitTag {get => unitTag;}
     public string FlaggedUnits {get => flaggedUnits;}
+    public Sprite Sprite {get => sprite;}
+    public bool IsMobile {get => isMobile;}
+    public bool IsCombatant {get => isCombatant;}
+    public int Health {get => health;}
+    public int Speed {get => speed;}
+    public int Damage {get => damage;}
 
-    public void Deconstruct(out Sprite Sprite, out int Health, out int Speed, out bool IsMobile)
+    /*public void Deconstruct(out int Health, out int Speed)
     {
-        Sprite = sprite;
         Health = health;
         Speed = speed;
-        IsMobile = isMobile;
-    }
+    }*/
 }

@@ -15,10 +15,10 @@ public static class UnitFactory
     private static void InitializeUnit(int unitID, GameObject unit)
     {
         SpriteRenderer sr = unit.GetComponent<SpriteRenderer>();
-        UnitController uc = unit.GetComponent<UnitController>();
+        UnitBody ub = unit.GetComponent<UnitBody>();
         Unit unitType = UnitDictionary.units[unitID];
-        (sr.sprite, uc.MaxHealth, uc.Speed, uc.IsMobile) = unitType;
-        uc.RoleAssignment = unitType;
+        ub.AssignedRole = unitType;
+        sr.sprite = unitType.Sprite;
         unit.name = unitType.name;
     }
 }

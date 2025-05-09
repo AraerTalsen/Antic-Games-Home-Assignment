@@ -12,12 +12,22 @@ public class TargetUnit : MonoBehaviour
 
     private void Start()
     {
-        self = GetComponent<UnitController>().RoleAssignment;
+        self = GetComponent<UnitController>().AssignedRole;
     }
     
     public void AddUnit(int i, int j, Unit unit)
     {
         registeredUnits.Add(unit, (i, j));
+    }
+
+    public void UpdateUnit(int i, int j, Unit unit)
+    {
+        registeredUnits[unit] = (i, j);
+    }
+
+    public void DeleteUnit(Unit unit)
+    {
+        registeredUnits.Remove(unit);
     }
 
     private Unit FindTarget()
@@ -59,5 +69,10 @@ public class TargetUnit : MonoBehaviour
         (int i, int j) = registeredUnits[target];
         (int x, int z) = registeredUnits[self];
         return Mathf.Abs(i - x) + Mathf.Abs(j - z);
+    }
+
+    public int DistanceBetween((int x, int z) pos1, (int x, int z) pos2)
+    {
+        return Mathf.Abs(pos1.x - pos2.x) + Mathf.Abs(pos1.z - pos2.z);
     }
 }
