@@ -6,7 +6,7 @@ public class UnitBody : MonoBehaviour
 {
     private Unit assignedRole;
 
-    public Unit AssignedRole {set => assignedRole = value;}
+    public Unit AssignedRole {get => assignedRole; set => assignedRole = value;}
     private UnitVitality uv;
 
     private void Start()

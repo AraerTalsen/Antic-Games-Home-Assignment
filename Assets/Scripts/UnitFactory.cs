@@ -5,10 +5,19 @@ using UnityEngine;
 
 public static class UnitFactory
 {
-    public static void CreateUnit(int unitID)
+    public static void CreateUnit(int unitID, (int x, int z)? position = null)
     {
-        int x = Random.Range(-10, 11);
-        int z = Random.Range(-10, 11);
+        int x, z;
+        if(position == null)
+        {
+            x = Random.Range(-10, 11);
+            z = Random.Range(-10, 11);
+        }
+        else
+        {
+            x = position.Value.x;
+            z = position.Value.z;
+        }
         InitializeUnit(unitID, Object.Instantiate(Resources.Load("Prefabs/Unit") as GameObject, new Vector3(x, 0, z), Quaternion.identity));
     }
 

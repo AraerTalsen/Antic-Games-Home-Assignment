@@ -4,17 +4,18 @@ using UnityEngine;
 using DG.Tweening;
 using Unity.VisualScripting;
 
-public class UnitController : Grid<Unit>
+public class UnitController : Grid<Transform>
 {
     private int speed;
     private Unit assignedRole;
     private TargetUnit tu;
-    private Unit target;
+    private Transform target;
     private (int x, int z) lastGridPos;
     private int distToTarget = 100;
     private UnitVitality unitVitality, targetVitality;
     private Tween moveTween;
-    private bool isAttacking = false;
+    private bool isAttacking = false, isInCombat = false;
+    private List<Transform> attackers = new();
 
     public Unit AssignedRole {get => assignedRole; set => assignedRole = value;}
     public int Speed {set => speed = value;}
@@ -32,12 +33,11 @@ public class UnitController : Grid<Unit>
     void Update()
     {
         UpdateUnitGridPos();
-        print(name + " " + (target != null) + " " + !isAttacking + " " + (distToTarget > 1));
-        if(assignedRole.IsMobile && distToTarget > 1)
+        if(assignedRole.IsMobile && !isInCombat)
         {
             Move();
         }
-        else if(assignedRole.IsCombatant && target != null && !isAttacking)
+        else if(assignedRole.IsCombatant && isInCombat && !isAttacking)
         {
             StartCoroutine("Fight");
         }
@@ -47,14 +47,14 @@ public class UnitController : Grid<Unit>
     {
         Vector3 currentPos = transform.position;
         int i = (int)currentPos.x, j = (int)currentPos.z;
-        AddCell(i, j, assignedRole);
-        tu.AddUnit(i, j, assignedRole);
+        AddCell(i, j, transform);
+        tu.AddUnit(i, j, transform);
     }
 
     public override void UnregisterUnit()
     {
-        DeleteCell(assignedRole);
-        tu.DeleteUnit(assignedRole);
+        DeleteCell(transform);
+        tu.DeleteUnit(transform);
         moveTween.Kill();
         Destroy(gameObject);
     }
@@ -65,7 +65,7 @@ public class UnitController : Grid<Unit>
         if(target != null)
         {
             CheckForMoveUpdate();
-            distToTarget = tu.DistanceFrom(target);
+            isInCombat = tu.DistanceFrom(target) <= 1;
         }
     }
 
@@ -73,20 +73,36 @@ public class UnitController : Grid<Unit>
     {
         if(target == null || !HasCell(target))
         {
+            CheckIfInCombat();
             SetTarget();
         }
     }
     
     private void SetTarget()
     {
-        target = tu.Target;
-        targetVitality = target != null ? target.Transform.gameObject.GetComponent<UnitVitality>() : null;
+        target = tu.GetNewTarget(attackers);
+        targetVitality = target != null ? target.gameObject.GetComponent<UnitVitality>() : null;
+    }
+
+    private void CheckIfInCombat()
+    {
+        if(target != null && !HasCell(target))
+        {
+            if(attackers.Contains(target))
+            {
+                attackers.Remove(target);
+            }
+
+            if(attackers.Count == 0)
+            {
+                isInCombat = false;
+            }
+        }
     }
 
     protected virtual void CheckForMoveUpdate()
     {
         int dist = tu.DistanceBetween(lastGridPos, GetCell(target));
-
         if(dist > 0)
         { 
             if(moveTween != null)
@@ -100,18 +116,18 @@ public class UnitController : Grid<Unit>
 
     protected virtual void UpdateUnitGridPos()
     {
-        (int i, int j) = GetCell(assignedRole);
+        (int i, int j) = GetCell(transform);
         Vector3 current = transform.position;
         if(Mathf.Abs((int)current.x - i) > 0 || Mathf.Abs((int)current.z - j) > 0)
         {
-            UpdateCell((int)current.x, (int)current.z, assignedRole);
-            tu.UpdateUnit(i, j, assignedRole);
+            UpdateCell((int)current.x, (int)current.z, transform);
+            tu.UpdateUnit((int)current.x, (int)current.z, transform);
         }
     }
 
     private void StartMoving()
     {
-        moveTween = transform.DOMove(target.Transform.position, speed).SetSpeedBased(true);
+        moveTween = transform.DOMove(target.position, speed).SetSpeedBased(true).SetEase(Ease.Linear);
     }
 
     private IEnumerator Fight()
@@ -122,5 +138,20 @@ public class UnitController : Grid<Unit>
         CheckForTargetUpdate();
         yield return new WaitForSeconds(1);
         isAttacking = false;
+    }
+
+    public void AddAttacker(Transform unitTrans)
+    {
+        if(!isInCombat)
+        { 
+            isInCombat = true;
+            target = null; //Change in the future to store old target so unit can continue where it left off?
+            CheckForTargetUpdate();
+        }
+        
+        if(!attackers.Contains(unitTrans))
+        {
+            attackers.Add(unitTrans);
+        }
     }
 }
