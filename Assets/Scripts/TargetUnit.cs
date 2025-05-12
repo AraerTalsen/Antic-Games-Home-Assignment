@@ -1,77 +1,124 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class TargetUnit : MonoBehaviour
 {
-    private static Dictionary<Transform, (int, int)> registeredUnits = new();
-
     private Unit self;
+    private TargetContainer tc;
+    private UnitController uc;
+    private int sightRadius;
 
-    public Transform Target { get => FindTarget();}
+    public TargetContainer TC {set => tc = value;}
+    public Unit Self {set => self = value;}
+    public UnitController UC {set => uc = value;}
+    public int SightRadius {set => sightRadius = value;}
 
     private void Start()
     {
         self = GetComponent<UnitController>().AssignedRole;
     }
-    
-    public void AddUnit(int i, int j, Transform unit)
+
+    private void Update()
     {
-        registeredUnits.Add(unit, (i, j));
+        if(tc.Target == null)
+        {
+            //tc.Target = GetNewTarget(tc.Attackers);
+        }
     }
 
-    public void UpdateUnit(int i, int j, Transform unit)
+    public Unit FindNewTarget()
     {
-        registeredUnits[unit] = (i, j);
-    }
-
-    public void DeleteUnit(Transform unit)
-    {
-        registeredUnits.Remove(unit);
-    }
-
-    private Transform FindTarget()
-    {        
-        Transform selectedTarget = null;
-        int highestPriority = -1;
+        Vector3 currentPos = transform.position;
+        Unit selectedUnit = null;
         
-        foreach(KeyValuePair<Transform, (int, int)> cell in registeredUnits)
-        {
-            Unit u = cell.Key.gameObject.GetComponent<UnitBody>().AssignedRole;
-            if(u.UnitTag.CompareTo(self.FlaggedUnits) == 0)
-            {
-                int unitPriority = MeasurePriorityLevel(cell.Value);
-                if(unitPriority > highestPriority)
-                {
-                    highestPriority = unitPriority;
-                    selectedTarget = cell.Key;
-                } 
-            }
-        }
-        return selectedTarget;
+        BFSFromPosition(currentPos, ref selectedUnit);
+
+        return selectedUnit;
     }
 
-    private Transform FindTarget(List<Transform> targets)
+    private Unit BFSFromPosition(Vector3 currentPos, ref Unit selectedUnit)
     {
-        Transform selectedTarget = null;
-        int highestPriority = -1;
+        int topPriority = -1;
+        Vector3[] dirs = {Vector3.forward, Vector3.right, Vector3.back, Vector3.left};
 
-        foreach(Transform t in targets)
+        List<Vector3> cells = new() {currentPos};
+        List<Vector3> allCells = cells.ToList();
+
+        int i;
+
+        do
         {
-            Unit u = t.gameObject.GetComponent<UnitBody>().AssignedRole;
-            (int, int) position = registeredUnits[t];
-            if(u.UnitTag.CompareTo(self.FlaggedUnits) == 0)
+            List<Vector3> tempCells = new();
+
+            for(i = 0; i < cells.Count; i++)
             {
-                int unitPriority = MeasurePriorityLevel(position);
-                if(unitPriority > highestPriority)
+                for(int j = 0; j < dirs.Length; j++)
                 {
-                    highestPriority = unitPriority;
-                    selectedTarget = t;
-                } 
+                    Vector3 cell = cells[i];
+                    cell += dirs[j];
+
+                    (Unit unit, int priority)? cellContent = CheckCellForUnit(cell, ref allCells, ref tempCells);
+
+                    if(cellContent != null && topPriority < cellContent.Value.priority)
+                    {
+                        selectedUnit = cellContent.Value.unit;
+                        topPriority = cellContent.Value.priority;
+                    }
+                }
             }
+            cells = tempCells;
+            allCells = cells.ToList();
+        }
+        while(Vector3.Distance(currentPos, cells[i]) < sightRadius);
+
+        return selectedUnit;
+    }
+
+    private (Unit, int)? CheckCellForUnit(Vector3 lookAtCell, ref List<Vector3> allCells, ref List<Vector3> tempCells)
+    {
+        (Unit, int)? cellContent = null;
+
+        if(ContainsVector(lookAtCell, allCells))
+        {
+            tempCells.Add(lookAtCell);
+            allCells.Add(lookAtCell);
+
+            cellContent = CheckIfUnit(lookAtCell);
         }
 
-        return selectedTarget;
+        return cellContent;
+    }
+
+    private (Unit, int) CheckIfUnit(Vector3 cell)
+    {
+        int priority = -1;
+        int x = (int)cell.x, z = (int)cell.z;
+
+        Unit u = uc.GetCell(x, z);
+
+        bool isNull = u == null;
+        bool isFlagged = !isNull && u.UnitTag.CompareTo(self.FlaggedUnits) == 0;
+
+        if(isFlagged)
+        {
+            priority = MeasurePriorityLevel((x, z));
+        }
+        
+        return (u, priority);
+    }
+
+    private bool ContainsVector(Vector3 v, List<Vector3> items)
+    {
+        foreach(Vector3 itm in items)
+        {
+            if(Vector3.Distance(itm, v) < 1)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int MeasurePriorityLevel((int, int) position)
@@ -82,32 +129,13 @@ public class TargetUnit : MonoBehaviour
 
     private int DistanceFrom((int i, int j) destination)
     {
-        (int x, int z) = registeredUnits[self.Transform];
+        Vector3 currentPos = transform.position;
+        int x = (int)currentPos.x, z = (int)currentPos.z;
         return Mathf.Abs(destination.i - x) + Mathf.Abs(destination.j - z);
-    }
-
-    //Find way to make this private to avoid null assignment errors
-    public int DistanceFrom(Transform target)
-    {
-        (int i, int j) = registeredUnits[target];
-        (int x, int z) = registeredUnits[self.Transform];
-        return Mathf.Abs(i - x) + Mathf.Abs(j - z);
     }
 
     public int DistanceBetween((int x, int z) pos1, (int x, int z) pos2)
     {
         return Mathf.Abs(pos1.x - pos2.x) + Mathf.Abs(pos1.z - pos2.z);
-    }
-
-    public Transform GetNewTarget(List<Transform> attackers = null)
-    {
-        if(attackers == null || attackers.Count == 0)
-        {
-            return Target;
-        }
-        else
-        {
-            return FindTarget(attackers);
-        }
     }
 }

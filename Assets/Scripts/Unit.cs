@@ -9,6 +9,8 @@ public class Unit : ScriptableObject
     [SerializeField]
     private Sprite sprite;
     [SerializeField]
+    private Sprite silhouette;
+    [SerializeField]
     private string unitTag;
     [SerializeField]
     private string flaggedUnits;  
@@ -24,20 +26,34 @@ public class Unit : ScriptableObject
     private bool isCombatant = true;
 
     private Transform transform;
+    private Unit target;
+    private (int, int) gridPos;
+    private UnitVitality unitVitality;
 
     public Transform Transform {get => transform; set => transform = value;}
     public string UnitTag {get => unitTag;}
     public string FlaggedUnits {get => flaggedUnits;}
     public Sprite Sprite {get => sprite;}
+    public Sprite Silhouette {get => silhouette;}
     public bool IsMobile {get => isMobile;}
     public bool IsCombatant {get => isCombatant;}
     public int Health {get => health;}
     public int Speed {get => speed;}
     public int Damage {get => damage;}
+    public Unit Target {get => target; set => target = value;}
+    public (int, int) GridPos {get => gridPos; set => gridPos = value;}
+    public UnitVitality UnitVitality {get => unitVitality; set => unitVitality = value;}
 
-    /*public void Deconstruct(out int Health, out int Speed)
+
+    public Dictionary<string, object> DebugData()
     {
-        Health = health;
-        Speed = speed;
-    }*/
+        return new Dictionary<string, object>
+        {
+            {"Health", health},
+            {"Speed", speed},
+            {"Position", gridPos},
+            {"Target Type", target != null ? target.name : null},
+            {"Target Position", target != null ? target.GridPos : null}
+        };
+    }
 }

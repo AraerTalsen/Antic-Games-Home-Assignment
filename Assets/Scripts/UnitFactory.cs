@@ -18,14 +18,14 @@ public static class UnitFactory
             x = position.Value.x;
             z = position.Value.z;
         }
-        InitializeUnit(unitID, Object.Instantiate(Resources.Load("Prefabs/Unit") as GameObject, new Vector3(x, 0, z), Quaternion.identity));
+        InitializeUnit(unitID, Object.Instantiate(Resources.Load("Prefabs/Unit") as GameObject, new Vector3(x, 0, z), Quaternion.Euler(new Vector3(90, 0, 0))));
     }
 
     private static void InitializeUnit(int unitID, GameObject unit)
     {
         SpriteRenderer sr = unit.GetComponent<SpriteRenderer>();
         UnitBody ub = unit.GetComponent<UnitBody>();
-        Unit unitType = UnitDictionary.units[unitID];
+        Unit unitType = Object.Instantiate(UnitDictionary.units[unitID]);
         ub.AssignedRole = unitType;
         sr.sprite = unitType.Sprite;
         unit.name = unitType.name;

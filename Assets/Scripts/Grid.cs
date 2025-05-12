@@ -6,22 +6,22 @@ using System;
 
 public abstract class Grid<TCell> : MonoBehaviour
 {    
-    public static Dictionary<TCell, (int, int)> registeredUnits = new();
+    public static Dictionary<(int, int), TCell> registeredUnits = new();
     
     protected void AddCell(int i, int j, TCell cell)
     {
-        registeredUnits.Add(cell, (i, j));
+        registeredUnits.Add((i, j), cell);
     }
 
-    protected (int, int) GetCell(TCell cell)
+    public TCell GetCell(int i, int j)
     {
-        return registeredUnits[cell];
+        return registeredUnits[(i, j)];
     }
 
-    protected bool HasCell(TCell cell)
+    /*protected bool HasCell(TCell cell)
     {
         return registeredUnits.ContainsKey(cell);
-    }
+    }*/
 
     /*protected TCell GetCell(int i, int j)
     {
@@ -30,17 +30,17 @@ public abstract class Grid<TCell> : MonoBehaviour
     
     protected void UpdateCell(int i, int j, TCell cell)
     {
-        registeredUnits[cell] = (i, j);   
+        registeredUnits[(i, j)] = cell;   
     }
 
     protected void DeleteCell(TCell cell)
     {
-        registeredUnits.Remove(cell);
+        //registeredUnits.Remove(cell);
     }
 
     protected void DeleteCell(int i, int j)
     {
-        //registeredUnits.Remove(registeredUnits.);
+        registeredUnits.Remove((i, j));
     }
 
     protected abstract void RegisterUnit();

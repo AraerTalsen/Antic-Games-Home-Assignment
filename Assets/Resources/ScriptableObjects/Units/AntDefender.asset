@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: AntDefender
   m_EditorClassIdentifier: 
   sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  unitTag: Ant
-  flaggedUnits: Flag
+  silhouette: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  unitTag: AntDefender
+  flaggedUnits: EnemyUnit
   health: 5
   speed: 3
   damage: 1
-  isMobile: 1
+  isMobile: 0
   isCombatant: 1

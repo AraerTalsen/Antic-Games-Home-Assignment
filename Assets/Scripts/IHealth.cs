@@ -7,5 +7,5 @@ public interface IHealth
     public int MaxHealth {get; set;}
     public int CurrentHealth {get; set;}
 
-    public abstract void ChangeHealth(int amount);
+    public abstract void ChangeHealth(int amount, Unit other);
 }
