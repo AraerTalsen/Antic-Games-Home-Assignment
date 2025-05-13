@@ -4,8 +4,7 @@ using UnityEngine;
 
 public interface IHealth
 {
-    public int MaxHealth {get; set;}
-    public int CurrentHealth {get; set;}
+    public int MaxHealth {set;}
 
     public abstract void ChangeHealth(int amount, Unit other);
 }

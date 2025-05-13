@@ -21,14 +21,16 @@ public class Unit : ScriptableObject
     [SerializeField]
     private int damage;
     [SerializeField]
+    private int sightRadius;
+    [SerializeField]
     private bool isMobile = true;
     [SerializeField]
     private bool isCombatant = true;
 
     private Transform transform;
-    private Unit target;
-    private (int, int) gridPos;
     private UnitVitality unitVitality;
+    private TargetContainer targetContainer;
+    private StatContainer statContainer;
 
     public Transform Transform {get => transform; set => transform = value;}
     public string UnitTag {get => unitTag;}
@@ -40,20 +42,8 @@ public class Unit : ScriptableObject
     public int Health {get => health;}
     public int Speed {get => speed;}
     public int Damage {get => damage;}
-    public Unit Target {get => target; set => target = value;}
-    public (int, int) GridPos {get => gridPos; set => gridPos = value;}
+    public int SightRadius {get => sightRadius;}
     public UnitVitality UnitVitality {get => unitVitality; set => unitVitality = value;}
-
-
-    public Dictionary<string, object> DebugData()
-    {
-        return new Dictionary<string, object>
-        {
-            {"Health", health},
-            {"Speed", speed},
-            {"Position", gridPos},
-            {"Target Type", target != null ? target.name : null},
-            {"Target Position", target != null ? target.GridPos : null}
-        };
-    }
+    public TargetContainer TargetContainer {get => targetContainer; set => targetContainer = value;}
+    public StatContainer StatContainer {get => statContainer; set => statContainer = value;}
 }

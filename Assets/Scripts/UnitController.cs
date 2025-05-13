@@ -3,40 +3,38 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using Unity.VisualScripting;
+using UnityEditor.PackageManager;
 
-public class UnitController : Grid<Unit>
+public class UnitController : Grid<List<Unit>>
 {
     private int speed;
     private Unit assignedRole;
     private TargetUnit tu;
-    private (int x, int z) lastGridPos = (100, 100);
     private Tween moveTween;
     private TargetContainer tc;
+    private int lastDistance = -1;
 
     public Unit AssignedRole {get => assignedRole; set => assignedRole = value;}
     public int Speed {set => speed = value;}
     public TargetContainer TC {set => tc = value;}
-    
-    void Awake()
-    {
-        tu = GetComponent<TargetUnit>();
-        tu.UC = this;
-    }
 
     private void Start()
     {
+        tu = GetComponent<TargetUnit>();
+        tu.UC = this;
+        tu.TC = tc;
+        tu.SightRadius = assignedRole.SightRadius;
         RegisterUnit();
     }
 
     // Update is called once per frame
     void Update()
     {
-        //UpdateUnitGridPos();
         if(assignedRole.IsMobile)
         {
             if(tc.Distance > 1)
             {
-                Move();
+                MoveUnit();
             }
             else
             {
@@ -50,59 +48,96 @@ public class UnitController : Grid<Unit>
 
     protected override void RegisterUnit()
     {
-        Vector3 currentPos = transform.position;
-        int i = (int)currentPos.x, j = (int)currentPos.z;
-        AddCell(i, j, assignedRole);
-        assignedRole.GridPos = (i, j);
+        (int i, int j) position = WorldToGridPos(transform.position);
+        List<Unit> units = GetCell(position.i, position.j);
+        AddUnitToCell(position, units);
+        tc.GridPos = (position.i, position.j);
     }
 
     public override void UnregisterUnit()
     {
-        DeleteCell(assignedRole);
+        (int i, int j) position = assignedRole.TargetContainer.GridPos;
+        List<Unit> units = GetCell(position.i, position.j);
+        RemoveUnitFromCell(position, units);
         moveTween.Kill();
         Destroy(assignedRole);
         Destroy(gameObject);
     }
 
+    private void AddUnitToCell((int i, int j) position, List<Unit> units)
+    {
+        if(units == null)
+        {
+            units = new List<Unit> {assignedRole};
+            AddCell(position.i, position.j, units);
+        }
+        else
+        {
+            units.Add(assignedRole);
+            //print($"Role now includes assignedRole: {GetCell(position.i, position.j).Contains(assignedRole)}");
+        }
+    }
+    
+    private void RemoveUnitFromCell((int i, int j) position, List<Unit> units)
+    {
+       
+        if(units != null && units.Count > 0 && units.Contains(assignedRole))
+        {
+            units.Remove(assignedRole);
+            if(units.Count == 0)
+            {
+                DeleteCell(position.i, position.j);
+            }
+        }
+        else
+        {
+            Debug.Log($"Unit {assignedRole} is either stored to the wrong position or does not exist");
+        }
+    }
+
     protected override void Move()
+    {
+        (int i, int j) position = assignedRole.TargetContainer.GridPos;
+        List<Unit> units = GetCell(position.i, position.j);
+        RemoveUnitFromCell(position, units);
+
+        position = WorldToGridPos(transform.position);
+        units = GetCell(position.i, position.j);
+        AddUnitToCell(position, units);
+
+        tc.GridPos = (position.i, position.j);
+    }
+
+    private (int i, int j) WorldToGridPos(Vector3 position)
+    {
+        int i = (int)position.x, j = (int)position.z;
+        return (i, j);
+    }
+
+    private void MoveUnit()
     {
         if(tc.Target != null)
         {
-            //CheckForMoveUpdate();
+            CheckForMoveUpdate();
+            Move();
         }
-        else if(moveTween.IsPlaying())
+        else if(moveTween != null && moveTween.IsPlaying())
         {
             moveTween.Kill();
         }
     }
 
-    /*protected virtual void CheckForMoveUpdate()
+    protected virtual void CheckForMoveUpdate()
     {
-        int dist = tu.DistanceBetween(lastGridPos, GetCell(tc.Target));
-        if(dist > 0)
+        if(lastDistance < tc.Distance)
         { 
-            if(moveTween != null)
-            {
-                moveTween?.Kill();
-            }
-            lastGridPos = GetCell(tc.Target);
+            moveTween?.Kill();
             StartMoving();
         }
-    }*/
-
-    /*protected virtual void UpdateUnitGridPos()
-    {
-        (int i, int j) = GetCell(assignedRole);
-        Vector3 current = transform.position;
-        if(Mathf.Abs((int)current.x - i) > 0 || Mathf.Abs((int)current.z - j) > 0)
-        {
-            UpdateCell((int)current.x, (int)current.z, assignedRole);
-            assignedRole.GridPos = ((int)current.x, (int)current.z);
-        }
-    }*/
+    }
 
     private void StartMoving()
     {
         moveTween = transform.DOMove(tc.Target.Transform.position, speed).SetSpeedBased(true).SetEase(Ease.Linear);
-    } 
+    }
 }

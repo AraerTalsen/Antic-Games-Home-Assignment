@@ -19,5 +19,6 @@ MonoBehaviour:
   health: 5
   speed: 3
   damage: 1
-  isMobile: 0
+  sightRadius: 10
+  isMobile: 1
   isCombatant: 1

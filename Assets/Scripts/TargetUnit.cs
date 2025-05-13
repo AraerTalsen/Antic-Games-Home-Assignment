@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
 public class TargetUnit : MonoBehaviour
@@ -24,7 +25,11 @@ public class TargetUnit : MonoBehaviour
     {
         if(tc.Target == null)
         {
-            //tc.Target = GetNewTarget(tc.Attackers);
+            tc.Target = FindNewTarget();
+        }
+        else
+        {
+            tc.Distance = DistanceFrom(tc.Target.TargetContainer.GridPos);
         }
     }
 
@@ -50,7 +55,7 @@ public class TargetUnit : MonoBehaviour
 
         do
         {
-            List<Vector3> tempCells = new();
+            List<Vector3> tempCells = new List<Vector3> {currentPos};
 
             for(i = 0; i < cells.Count; i++)
             {
@@ -71,16 +76,14 @@ public class TargetUnit : MonoBehaviour
             cells = tempCells;
             allCells = cells.ToList();
         }
-        while(Vector3.Distance(currentPos, cells[i]) < sightRadius);
-
+        while(Vector3.Distance(currentPos, cells[i]) < sightRadius && sightRadius != 0);;
         return selectedUnit;
     }
 
     private (Unit, int)? CheckCellForUnit(Vector3 lookAtCell, ref List<Vector3> allCells, ref List<Vector3> tempCells)
     {
         (Unit, int)? cellContent = null;
-
-        if(ContainsVector(lookAtCell, allCells))
+        if(!ContainsVector(lookAtCell, allCells))
         {
             tempCells.Add(lookAtCell);
             allCells.Add(lookAtCell);
@@ -93,20 +96,28 @@ public class TargetUnit : MonoBehaviour
 
     private (Unit, int) CheckIfUnit(Vector3 cell)
     {
-        int priority = -1;
+        int topPriority = -1;
+        Unit selectedUnit = null;
         int x = (int)cell.x, z = (int)cell.z;
 
-        Unit u = uc.GetCell(x, z);
-
-        bool isNull = u == null;
-        bool isFlagged = !isNull && u.UnitTag.CompareTo(self.FlaggedUnits) == 0;
-
-        if(isFlagged)
+        List<Unit> units = uc.GetCell(x, z);
+        units?.ForEach(u =>
         {
-            priority = MeasurePriorityLevel((x, z));
-        }
-        
-        return (u, priority);
+            bool isNull = u == null;
+            bool isFlagged = !isNull && u.UnitTag.CompareTo(self.FlaggedUnits) == 0;
+
+            if(isFlagged)
+            {
+                int priority = MeasurePriorityLevel((x, z));
+                if(topPriority < priority)
+                {
+                    topPriority = priority;
+                    selectedUnit = u;
+                }
+            }
+        });
+
+        return (selectedUnit, topPriority);
     }
 
     private bool ContainsVector(Vector3 v, List<Vector3> items)
@@ -121,12 +132,6 @@ public class TargetUnit : MonoBehaviour
         return false;
     }
 
-    private int MeasurePriorityLevel((int, int) position)
-    {
-        int distance = 3 - (int)Mathf.Ceil(Mathf.Clamp(DistanceFrom(position), 0, 9) / 3);
-        return distance;
-    }
-
     private int DistanceFrom((int i, int j) destination)
     {
         Vector3 currentPos = transform.position;
@@ -134,8 +139,9 @@ public class TargetUnit : MonoBehaviour
         return Mathf.Abs(destination.i - x) + Mathf.Abs(destination.j - z);
     }
 
-    public int DistanceBetween((int x, int z) pos1, (int x, int z) pos2)
+    private int MeasurePriorityLevel((int, int) position)
     {
-        return Mathf.Abs(pos1.x - pos2.x) + Mathf.Abs(pos1.z - pos2.z);
+        int distance = 3 - (int)Mathf.Ceil(Mathf.Clamp(DistanceFrom(position), 0, 9) / 3);
+        return distance;
     }
 }

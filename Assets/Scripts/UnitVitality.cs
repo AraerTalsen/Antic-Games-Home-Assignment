@@ -5,35 +5,31 @@ using UnityEngine;
 
 public class UnitVitality : MonoBehaviour, IHealth
 {
-    private UnitController unitController;
-    public UnitController UnitController {get => unitController; set => unitController = value;}
-
     private int maxHealth;
-    [SerializeField]
-    private int currentHealth;
     private int damage;
     private Unit assignedRole;
-    private Unit target;
-    private int distance;
     private bool isAttacking = false;
     private TargetContainer tc;
+    private StatContainer sc;
 
-    public int CurrentHealth {get => currentHealth; set => currentHealth = value;}
-    public int MaxHealth { get => maxHealth; set => maxHealth = value; }
-    public int Damage {get => damage; set => damage = value;}
+    public delegate void MyDelegate();
+    public MyDelegate WhenDead;
+
+    public int MaxHealth { set => maxHealth = value; }
+    public int Damage {set => damage = value;}
     public Unit AssignedRole {set => assignedRole = value;}
-    public Unit Target {set => target = value;}
     public bool IsAttacking {get => isAttacking; set => isAttacking = value;}
     public TargetContainer TC {set => tc = value;}
+    public StatContainer SC {set => sc = value;}
 
     private void Start()
     {
-        CurrentHealth = maxHealth;   
+        sc.CurrentHealth = maxHealth;   
     }
 
     private void Update()
     {
-        if(tc.Distance <= 1)
+        if(assignedRole.IsCombatant && tc.Distance <= 1)
         {
             Fight();
         }
@@ -41,16 +37,16 @@ public class UnitVitality : MonoBehaviour, IHealth
 
     public void ChangeHealth(int amount, Unit other)
     {
-        CurrentHealth -= amount;
+        sc.CurrentHealth -= amount;
         CheckIfAlive();
         tc.AddAttacker(other);
     }
 
     private void CheckIfAlive()
     {
-        if(CurrentHealth <= 0)
+        if(sc.CurrentHealth <= 0)
         {
-            unitController.UnregisterUnit();
+            WhenDead();
         }
     }
 
@@ -72,6 +68,6 @@ public class UnitVitality : MonoBehaviour, IHealth
 
     private void AttackAction()
     {
-        tc.Target.UnitVitality.ChangeHealth(Damage, assignedRole);
+        tc.Target.UnitVitality.ChangeHealth(damage, assignedRole);
     }
 }

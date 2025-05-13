@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
+using Unity.VisualScripting;
 
 public abstract class Grid<TCell> : MonoBehaviour
 {    
-    public static Dictionary<(int, int), TCell> registeredUnits = new();
+    private static Dictionary<(int, int), TCell> registeredUnits = new();
     
     protected void AddCell(int i, int j, TCell cell)
     {
@@ -15,22 +16,7 @@ public abstract class Grid<TCell> : MonoBehaviour
 
     public TCell GetCell(int i, int j)
     {
-        return registeredUnits[(i, j)];
-    }
-
-    /*protected bool HasCell(TCell cell)
-    {
-        return registeredUnits.ContainsKey(cell);
-    }*/
-
-    /*protected TCell GetCell(int i, int j)
-    {
-        
-    }*/
-    
-    protected void UpdateCell(int i, int j, TCell cell)
-    {
-        registeredUnits[(i, j)] = cell;   
+        return registeredUnits.ContainsKey((i, j)) ? registeredUnits[(i, j)] : default;
     }
 
     protected void DeleteCell(TCell cell)

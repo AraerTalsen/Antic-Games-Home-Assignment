@@ -12,8 +12,10 @@ public class ClickableObject : MonoBehaviour, IClickable
     private Color standard;
 
     private Sprite unitSilhouette;
+    private Unit assignedRole;
 
     public Sprite UnitSilhouette {set => unitSilhouette = value;}
+    public Unit AssignedRole {set => assignedRole = value;}
 
     private void Start()
     {
@@ -32,6 +34,6 @@ public class ClickableObject : MonoBehaviour, IClickable
 
     public void OnClick()
     {
-        //DebugWindow.LoadDebugInfo(assignedRole);
+        DebugWindow.LoadDebugInfo(assignedRole);
     }
 }

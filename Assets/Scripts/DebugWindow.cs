@@ -31,15 +31,9 @@ public class DebugWindow : MonoBehaviour
     {
         if(currentUnit != null)
         {
-            Dictionary<string, object> debugInfo = currentUnit.DebugData();
-
-            debugInfoText[0].text = currentUnit.name;
-
-            for(int i = 0; i < debugInfoText.Length && i < debugInfo.Count; i++)
-            {
-                KeyValuePair<string, object> element = debugInfo.ElementAt(i);
-                debugInfoText[i + 1].text = $"{element.Key}: {element.Value}";
-            }
+            debugInfoText[0].text = "Current Target: " + currentUnit.name;
+            debugInfoText[1].text = "Distance: " + currentUnit.TargetContainer.Distance.ToString();
+            debugInfoText[2].text = "Targeting: " + currentUnit.TargetContainer.Target.ToString();
         }
         else
         {
