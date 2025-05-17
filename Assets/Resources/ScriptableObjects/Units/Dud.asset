@@ -10,17 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2d0ccaa3887b1de4885d26145d0a7bac, type: 3}
-  m_Name: AntDefender
+  m_Name: Dud
   m_EditorClassIdentifier: 
-  sprite: {fileID: 21300000, guid: f2d993530ac5ef7438fa221bd326ae64, type: 3}
-  silhouette: {fileID: 21300000, guid: 01892dbbbd4cdda47b7d06d3d7bab365, type: 3}
-  unitTag: AntDefender
-  flaggedUnits: EnemyUnit
-  health: 5
-  speed: 3
-  damage: 1
-  pointValue: 0
-  sightRadius: 100
-  isMobile: 1
-  isCombatant: 1
-  priorityID: 000000000100000002000000
+  sprite: {fileID: 21300000, guid: 4e750e6832f739a4ca8bbe2cf557399e, type: 3}
+  silhouette: {fileID: 21300000, guid: 5f81b0b7e9b607c45affaaa41174a9b8, type: 3}
+  unitTag: EnemyUnit
+  flaggedUnits: 
+  health: 3
+  speed: 0
+  damage: 0
+  sightRadius: 0
+  isMobile: 0
+  isCombatant: 0

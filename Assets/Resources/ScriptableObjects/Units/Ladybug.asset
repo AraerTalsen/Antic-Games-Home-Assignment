@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2d0ccaa3887b1de4885d26145d0a7bac, type: 3}
-  m_Name: AntDefender
+  m_Name: Ladybug
   m_EditorClassIdentifier: 
-  sprite: {fileID: 21300000, guid: f2d993530ac5ef7438fa221bd326ae64, type: 3}
-  silhouette: {fileID: 21300000, guid: 01892dbbbd4cdda47b7d06d3d7bab365, type: 3}
-  unitTag: AntDefender
-  flaggedUnits: EnemyUnit
+  sprite: {fileID: 21300000, guid: b0cd0c50766c28445803224a76efbc7a, type: 3}
+  silhouette: {fileID: 21300000, guid: c97b93ffa682c4446ba2522db10ab629, type: 3}
+  unitTag: EnemyUnit
+  flaggedUnits: Flag
   health: 5
-  speed: 3
-  damage: 1
-  pointValue: 0
+  speed: 1
+  damage: 2
+  pointValue: 20
   sightRadius: 100
   isMobile: 1
   isCombatant: 1
-  priorityID: 000000000100000002000000
+  priorityID: 0000000001000000

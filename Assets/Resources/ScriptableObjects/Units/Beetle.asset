@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2d0ccaa3887b1de4885d26145d0a7bac, type: 3}
-  m_Name: AntDefender
+  m_Name: Beetle
   m_EditorClassIdentifier: 
-  sprite: {fileID: 21300000, guid: f2d993530ac5ef7438fa221bd326ae64, type: 3}
-  silhouette: {fileID: 21300000, guid: 01892dbbbd4cdda47b7d06d3d7bab365, type: 3}
-  unitTag: AntDefender
-  flaggedUnits: EnemyUnit
-  health: 5
-  speed: 3
-  damage: 1
-  pointValue: 0
+  sprite: {fileID: 21300000, guid: 2380cacada4351b4aa906b6b787107cb, type: 3}
+  silhouette: {fileID: 21300000, guid: 5701f47fd95da6a4ab356ba3a49fcfcc, type: 3}
+  unitTag: EnemyUnit
+  flaggedUnits: Flag
+  health: 10
+  speed: 0.5
+  damage: 3
+  pointValue: 30
   sightRadius: 100
   isMobile: 1
   isCombatant: 1
-  priorityID: 000000000100000002000000
+  priorityID: 0000000001000000
