@@ -9,7 +9,7 @@ public class UnitTracker
     private int enemyInsectCount;
     private int endState = 0;
 
-    //0 = pause, 1 = wind, 2 = lose
+    //0 = pause, 1 = win, 2 = lose
     public int EndState { get => endState; }
 
     private void ChangeEnemyCount(int qty)
